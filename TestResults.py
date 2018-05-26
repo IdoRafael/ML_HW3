@@ -8,22 +8,22 @@ from sklearn.svm import SVC
 from BasicDataPreparation import most_basic_preparation
 from DataPreparation import split_label
 import warnings
-from ReadWrite import FILES_DIR
+from ReadWrite import read_data
 
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
 
 
 def test_results():
-    train = pd.read_csv(FILES_DIR + 'train_original.csv', header=0)
-    validate = pd.read_csv(FILES_DIR + 'validate_original.csv', header=0)
-    test = pd.read_csv(FILES_DIR + 'test_original.csv', header=0)
+    train = read_data('train_original.csv')
+    validate = read_data('validate_original.csv')
+    test = read_data('test_original.csv')
     train, validate, test = most_basic_preparation(train, validate, test)
     train_x, train_y = split_label(train)
     test_x, test_y = split_label(test)
     test_data_preparation(train_x, train_y, test_x, test_y, 'Basic')
 
-    train = pd.read_csv(FILES_DIR + 'train.csv', header=0)
-    test = pd.read_csv(FILES_DIR + 'test.csv', header=0)
+    train = read_data('train.csv')
+    test = read_data('test.csv')
     train_x, train_y = split_label(train)
     test_x, test_y = split_label(test)
     test_data_preparation(train_x, train_y, test_x, test_y, 'Advanced')

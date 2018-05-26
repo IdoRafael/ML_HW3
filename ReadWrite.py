@@ -5,26 +5,29 @@ FILES_DIR = 'CSVFiles\\'
 LABEL_COLUMN = 'Vote'
 
 
-def read_data(filename, online):
+def read_data(filename, online=False, index=True):
     if online:
         return pd.read_csv(
             'https://webcourse.cs.technion.ac.il/236756/Spring2018/ho/WCFiles/ElectionsData.csv?7959',
             header=0
         )
     else:
-        return pd.read_csv(FILES_DIR + filename, header=0)
+        if index:
+            return pd.read_csv(FILES_DIR + filename, header=0, index_col='Index')
+        else:
+            return pd.read_csv(FILES_DIR + filename, header=0)
 
 
 def save_as_csv_original(train, validate, test):
-    train.to_csv(FILES_DIR + "train_original.csv", index=False)
-    validate.to_csv(FILES_DIR + "validate_original.csv", index=False)
-    test.to_csv(FILES_DIR + "test_original.csv", index=False)
+    train.to_csv(FILES_DIR + "train_original.csv", index_label='Index')
+    validate.to_csv(FILES_DIR + "validate_original.csv", index_label='Index')
+    test.to_csv(FILES_DIR + "test_original.csv", index_label='Index')
 
 
 def save_as_csv(train, validate, test):
-    train.to_csv(FILES_DIR + "train.csv", index=False)
-    validate.to_csv(FILES_DIR + "validate.csv", index=False)
-    test.to_csv(FILES_DIR + "test.csv", index=False)
+    train.to_csv(FILES_DIR + "train.csv", index_label='Index')
+    validate.to_csv(FILES_DIR + "validate.csv", index_label='Index')
+    test.to_csv(FILES_DIR + "test.csv", index_label='Index')
 
 
 def save_features_selected(original_features, new_features):

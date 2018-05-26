@@ -203,7 +203,7 @@ def handle_right_feature_set(train, validate, test):
 
 
 def prepare_data():
-    df = read_data('ElectionsData.csv', online=False)
+    df = read_data('ElectionsData.csv', online=False, index=False)
 
     original_features = df.columns.values
 

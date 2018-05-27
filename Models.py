@@ -60,8 +60,6 @@ def optimize_models_parameters(train_x, train_y):
     print(time.time() - start_time)
     """
 
-    """'max_features': []"""
-
     # DecisionTreeClassifier
     print('RANDOM_FOREST')
     start_time = time.time()

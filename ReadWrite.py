@@ -46,3 +46,7 @@ def save_features_selected(original_features, new_features):
         for f in new_selected_features:
             if f != LABEL_COLUMN:
                 file.write("%s\n" % f)
+
+
+def df_as_csv(df, name):
+    df.to_csv(FILES_DIR + "%s.csv" % name, index_label='Index')

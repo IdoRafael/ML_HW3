@@ -1,17 +1,18 @@
 import os
 import pickle
 import time
-
+import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import make_scorer, f1_score, accuracy_score, precision_score
+from sklearn.metrics import make_scorer, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-
 from DataPreparation import split_label
-from ReadWrite import read_data
+from ReadWrite import read_data, df_as_csv
+import matplotlib.pyplot as plt
 
 MODELS_FOLDER = 'Models'
 
@@ -101,18 +102,72 @@ def load_experiments(names):
     return models
 
 
-def optimize_models_parameters(train_x, train_y, rerun_experiments=False):
+def optimize_models_parameters(train, rerun_experiments=False):
+    train_x, train_y = split_label(train)
     names = ['SVC', 'KNN', 'DECISION_TREE', 'RANDOM_FOREST', 'GBC', 'MLP']
     models = run_experiments(train_x, train_y, names) if rerun_experiments else load_experiments(names)
     return models, names
 
 
 def get_best_model(validate, models, names):
-    return None
+    validate_x, validate_y = split_label(validate)
+    evaluated_models = [
+        [model, name, f1_score(validate_y, model.predict(validate_x), average='weighted')]
+        for model, name in zip(models, names)
+    ]
+
+    evaluated_models = sorted(evaluated_models, key=lambda t: t[2], reverse=True)
+
+    print('=' * 100)
+    print('Models Evaluated F1 Score:')
+
+    # Print results in a nice format using pd.Dataframe
+    print(pd.DataFrame(
+        np.matrix([[name, f1] for _, name, f1 in evaluated_models]).transpose(), ['Model Name', 'F1 Score']
+    ).transpose())
+
+    print()
+    best = evaluated_models[0]
+    print('Best Model Is:')
+    print(best[1], best[2])
+    print('=' * 100)
+
+    return best[0], best[1]
 
 
-def predict_test_and_save_results(trained_model, test):
-    return None
+def predict_test_and_save_results(model, name, test):
+    test_x, test_y = split_label(test)
+    pred_y = model.predict(test_x)
+    print('=' * 100)
+    print(
+        '%s Test F1 (shhh, we\'re not supposed to know this):' % name,
+        f1_score(test_y, pred_y, average='weighted')
+    )
+    print('=' * 100)
+
+    code_to_name = dict(enumerate(test['Vote'].astype('category').cat.categories))
+    results = pd.DataFrame(pred_y, test_x.index.values, columns=['Vote'])
+    results['Vote'] = results['Vote'].map(code_to_name).astype('category')
+
+    vote_distribution = results['Vote'].value_counts()
+    vote_distribution = vote_distribution.divide(sum(vote_distribution.values))
+    vote_distribution = vote_distribution.multiply(100)
+
+    plt.figure(figsize=(10, 10))
+    bar_plot = vote_distribution.plot.bar(
+        color=[c[:-1] for c in results['Vote'].value_counts().index.values],
+        edgecolor='black',
+        width=0.8
+    )
+
+    for p in bar_plot.patches:
+        bar_plot.annotate("{:.1f}".format(p.get_height()), (p.get_x() + 0.2, p.get_height() + 0.2))
+
+    bar_plot.set_xlabel('Party')
+    bar_plot.set_ylabel('Vote %')
+
+    plt.savefig('vote_distribution.png')
+    df_as_csv(results, 'results')
 
 
 def save_models(models, names):
@@ -150,11 +205,9 @@ def print_model(model, name):
 def load_optimize_fit_select_and_predict():
     train, validate, test = load_prepared_data()
 
-    train_x, train_y = split_label(train)
-
     # TODO - change to rerun_experiments=True when submitting HW
-    models, names = optimize_models_parameters(train_x, train_y)
+    models, names = optimize_models_parameters(train)
 
-    best_model_trained = get_best_model(validate, models, names)
+    best_model, name = get_best_model(validate, models, names)
 
-    predict_test_and_save_results(best_model_trained, test)
+    predict_test_and_save_results(best_model, name, test)

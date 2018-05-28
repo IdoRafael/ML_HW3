@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import make_scorer, f1_score
+from sklearn.metrics import make_scorer, f1_score, confusion_matrix, accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -168,6 +168,14 @@ def predict_test_and_save_results(model, name, test):
 
     plt.savefig('vote_distribution.png')
     df_as_csv(results, 'results')
+
+    print('=' * 100)
+    print('Confusion Matrix:')
+    print(confusion_matrix(test_y, pred_y))
+    print('=' * 100)
+    print("Test Error (1-accuracy):")
+    print(1 - accuracy_score(test_y, pred_y))
+    print('=' * 100)
 
 
 def save_models(models, names):

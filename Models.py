@@ -42,8 +42,8 @@ def run_experiments(train_x, train_y, names):
     svc = test_model(
         SVC(),
         'SVC',
-        [{'kernel': ['rbf'], 'gamma': [1e-1, 1e-2, 1e-3], 'C': [1e3, 1e4, 1e5, 1e6, 1e7]},
-         {'kernel': ['linear'], 'C': [1e1, 1e2, 1e3]}],
+        [{'kernel': ['rbf'], 'gamma': 10.0 ** np.arange(-9, 4, 1), 'C': 10.0 ** np.arange(-2, 11, 1)},
+         {'kernel': ['linear'], 'C': [1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7]}],
         train_x, train_y
     )
 
@@ -51,7 +51,7 @@ def run_experiments(train_x, train_y, names):
     knn = test_model(
         KNeighborsClassifier(),
         'KNN',
-        [{'n_neighbors': [1, 3, 5, 7]}],
+        [{'n_neighbors': list(range(1, 10, 1))}],
         train_x, train_y
     )
 
@@ -59,7 +59,7 @@ def run_experiments(train_x, train_y, names):
     tree = test_model(
         DecisionTreeClassifier(),
         'DECISION_TREE',
-        [{'max_depth': [None, 7, 8, 9, 10, 11, 12, 13]}],
+        [{'max_depth': [7, 8, 9, 10, 11, 12, 13, None]}],
         train_x, train_y
     )
 
@@ -68,7 +68,7 @@ def run_experiments(train_x, train_y, names):
         RandomForestClassifier(),
         'RANDOM_FOREST',
         [{'max_depth': [13, 14, 15, 16, 17, 18, 19, None],
-          'max_features': [None, 'sqrt', 'log2', 5, 6, 7, 8, 9, 10]}],
+          'max_features': ['sqrt', 'log2', 5, 6, 7, 8, 9, 10, None]}],
         train_x, train_y
     )
 
@@ -176,6 +176,8 @@ def predict_test_and_save_results(model, name, test):
     print("Test Error (1-accuracy):")
     print(1 - accuracy_score(test_y, pred_y))
     print('=' * 100)
+
+    print(code_to_name)
 
 
 def save_models(models, names):

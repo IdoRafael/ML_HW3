@@ -215,8 +215,8 @@ def print_model(model, name):
 def load_optimize_fit_select_and_predict():
     train, validate, test = load_prepared_data()
 
-    # TODO - change to rerun_experiments=True when submitting HW
-    models, names = optimize_models_parameters(train)
+    # To rerun experiments, change to True. Takes quite a while...
+    models, names = optimize_models_parameters(train, rerun_experiments=False)
 
     best_model, name = get_best_model(validate, models, names)
 
